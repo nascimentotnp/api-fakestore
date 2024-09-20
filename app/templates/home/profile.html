@@ -1,0 +1,55 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %} Perfil {% endblock title %}
+
+<!-- Specific CSS goes HERE -->
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+
+    <div class="container-fluid">
+    <div class="container-fluid py-4">
+        <div class="row">
+            <div class="col-xl-4">
+                <div class="card h-100">
+                    <div class="card-body p-3">
+                        <div class="avatar avatar-xl position-relative">
+                            <img src="
+                                    {% if current_user.gender == 'Feminino' %}{{ config.ASSETS_ROOT }}/img/female-avatar.png
+                                        {% else %}{{ config.ASSETS_ROOT }}/img/male-avatar.png{% endif %}"
+                                 alt="profile_image" class="w-100 border-radius-lg shadow-sm">
+                        </div>
+                        <ul class="list-group">
+                            <div>
+                                <h5 class="mb-5">
+                                    {{ current_user.username }}
+                                </h5>
+                            </div>
+
+                            <li class="list-group-item border-0 ps-0 pt-0 text-sm"><strong
+                                    class="text-dark">Nome:</strong>
+                                &nbsp; {{ current_user.firstname  + ' ' + current_user.lastname }}</li>
+                            <li class="list-group-item border-0 ps-0 text-sm"><strong
+                                    class="text-dark">Telefone:</strong> &nbsp; {{ current_user.phone }}</li>
+                            <li class="list-group-item border-0 ps-0 text-sm"><strong class="text-dark">Email:</strong>
+                                &nbsp; {{ current_user.email }}</li>
+                            <li class="list-group-item border-0 ps-0 text-sm"><strong
+                                    class="text-dark">Endereço:</strong> &nbsp; {{ current_user.address }}</li>
+                            <li class="list-group-item border-0 ps-0 text-sm"><strong class="text-dark">Genero:</strong>
+                                &nbsp; {{ current_user.gender }}</li>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        {% include "includes/footer.html" %}
+
+    </div>
+
+{% endblock content %}
+
+<!-- Specific JS goes HERE -->
+</div>{#{% block javascripts %}{% endblock javascripts %}#}
