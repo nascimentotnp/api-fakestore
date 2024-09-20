@@ -74,10 +74,15 @@ def update_password(user_id, **kwargs):
 
     for key, value in kwargs.items():
         if key == 'password':
-            value = hash_password(value)
+            value = hash_password(value)  # Certifique-se de que isso está chamando seu método de hashing
         setattr(user, key, value)
 
-    session.commit()
+    try:
+        session.commit()
+        logging.info(f'Senha do usuário com ID {user_id} atualizada com sucesso.')
+    except Exception as e:
+        session.rollback()
+        logging.error(f'Erro ao atualizar a senha: {e}')
 
 
 def delete_user(user_id):

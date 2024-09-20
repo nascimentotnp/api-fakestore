@@ -1,15 +1,16 @@
 from datetime import datetime, timezone
 
 import flask
-from flask import Blueprint
+from flask import Blueprint, flash
 from flask import render_template, redirect, request, url_for
-from flask_login import current_user, logout_user, login_user
+from flask_login import current_user, logout_user, login_user, login_required
 from flask_restx import Resource, Api
+from werkzeug.security import check_password_hash
 
 from authentication.forms import CreateAccountForm, LoginForm
 from authentication.jwt_auth import verify_pass, generate_api_token
 from domain.entity.entities import User
-from domain.repository.user_repository import read_user_by_username, read_user_by_email
+from domain.repository.user_repository import read_user_by_username, read_user_by_email, update_password
 from gateways.databases.connection import session
 
 authentication_blueprint = Blueprint('authentication_blueprint', __name__)
@@ -153,6 +154,33 @@ def register():
                                form=create_account_form)
     else:
         return render_template('accounts/register.html', form=create_account_form)
+
+
+@authentication_blueprint.route('/change-password/', methods=['GET', 'POST'])
+@login_required
+def change_password():
+    if request.method == 'POST':
+        current_password = request.form.get('current_password')
+        new_password = request.form.get('new_password')
+        confirm_new_password = request.form.get('confirm_new_password')
+
+        # Verifica se a senha atual está correta
+        if not check_password_hash(current_user.password, current_password):
+            flash('Senha atual incorreta.', 'danger')
+            return render_template('alterar_senha.html', msg='Senha atual incorreta.')
+
+        # Verifica se a nova senha e a confirmação são iguais
+        if new_password != confirm_new_password:
+            flash('As novas senhas não coincidem.', 'danger')
+            return render_template('alterar_senha.html', msg='As novas senhas não coincidem.')
+
+        # Atualiza a senha
+        update_password(current_user.id, password=new_password)
+
+        flash('Senha alterada com sucesso!', 'success')
+        return redirect(url_for('authentication_blueprint.login'))
+
+    return render_template('change_password.html')
 
 
 # Errors
