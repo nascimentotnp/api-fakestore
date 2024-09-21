@@ -1,14 +1,14 @@
-import logging
 import os
 from flask_migrate import Migrate
 from flask_minify import Minify
 from sys import exit
 
-from controllers.health_check.health_check_controller import health_blueprint
-from controllers.home.home_controller import home_blueprint
-from controllers.login.login_controller import authentication_blueprint
-from controllers.logout.logout_controller import logout_blueprint
-from controllers.products.products_controller import products_blueprint
+from flask_restx import Api
+
+from controllers.health_check_controller import health_ns
+from controllers.home_controller import home_blueprint
+from controllers.login_controller import authentication_blueprint, api
+from controllers.products_controller import products_ns
 from gateways.databases.config import config_dict
 from app import create_app
 
@@ -26,18 +26,14 @@ except KeyError:
 app = create_app(app_config)
 Migrate(app)
 
+api.add_namespace(products_ns)
 
 app.register_blueprint(authentication_blueprint)
 app.register_blueprint(home_blueprint)
-app.register_blueprint(logout_blueprint)
-app.register_blueprint(products_blueprint)
-app.register_blueprint(health_blueprint)
-
+api.add_namespace(health_ns)
 
 if not DEBUG:
     Minify(app=app, html=True, js=False, cssless=False)
 
-
 if __name__ == "__main__":
-
     app.run()

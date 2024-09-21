@@ -1,16 +1,11 @@
-import os
-
 from flask import Flask, render_template
 from flask.cli import load_dotenv
-
 from config.log import setup_log
 from config.timezone import set_default_timezone
-from controllers.authentication.authentication_controller import login_manager
+from controllers.authentication_controller import login_manager
 from domain.repository.product_repository import initialize_products_if_empty, read_all_products
 from gateways.api_fake.api_sale_gateway import fetch_and_store_products
 from gateways.databases.connection import engine
-
-# SECRET_KEY = os.environ.get('JWT_SECRET_KEY', 'fallback_secret_key')
 
 
 def configure_database(app):

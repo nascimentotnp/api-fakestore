@@ -3,18 +3,25 @@ from datetime import datetime, timezone
 import flask
 from flask import Blueprint, flash
 from flask import render_template, redirect, request, url_for
-from flask_login import current_user, logout_user, login_user, login_required
-from flask_restx import Resource, Api
-from werkzeug.security import check_password_hash
+from flask_login import current_user, logout_user, login_user
+from flask_restx import Resource, Api, fields
+from werkzeug.security import check_password_hash, generate_password_hash
 
-from authentication.forms import CreateAccountForm, LoginForm
-from authentication.jwt_auth import verify_pass, generate_api_token
+from authentication.forms import CreateAccountForm, LoginForm, ChangePassForm
+from authentication.jwt_auth import verify_pass, generate_api_token, get_api
 from domain.entity.entities import User
+from domain.repository.login_repository import is_strong_password
 from domain.repository.user_repository import read_user_by_username, read_user_by_email, update_password
 from gateways.databases.connection import session
 
-authentication_blueprint = Blueprint('authentication_blueprint', __name__)
-api = Api(authentication_blueprint)
+authentication_blueprint = Blueprint('authentication_blueprint', __name__, url_prefix='/')
+
+
+api = get_api(authentication_blueprint)
+login_model = api.model('Login', {
+    'username': fields.String(required=True, description='Nome de usuário'),
+    'password': fields.String(required=True, description='Senha')
+})
 
 
 @authentication_blueprint.route('/')
@@ -25,8 +32,6 @@ def route_default():
 @authentication_blueprint.route('/login', methods=['GET', 'POST'])
 def login():
     login_form = LoginForm(request.form)
-
-    print(f"{current_user} Passei aqui")
 
     if flask.request.method == 'POST':
         username = request.form['username']
@@ -49,6 +54,7 @@ def login():
 
 @api.route('/login/jwt/', methods=['POST'])
 class JWTLogin(Resource):
+    @api.expect(login_model)
     def post(self):
         try:
             data = request.form if request.form else request.json
@@ -139,6 +145,13 @@ def register():
                     firstname=firstname, lastname=lastname,
                     address=address, phone=phone, gender=gender,
                     api_token=None, api_token_ts=None)
+        if not is_strong_password(password):
+            flash(
+                'A nova senha deve ter pelo menos 8 caracteres, incluindo letras maiúsculas, minúsculas, números e símbolos.',
+                'danger')
+            return render_template('accounts/register.html',
+                                   msg='A nova senha não atende aos requisitos de segurança.', form=create_account_form)
+
         session.add(user)
         session.commit()
 
@@ -157,30 +170,41 @@ def register():
 
 
 @authentication_blueprint.route('/change-password/', methods=['GET', 'POST'])
-@login_required
 def change_password():
-    if request.method == 'POST':
-        current_password = request.form.get('current_password')
-        new_password = request.form.get('new_password')
-        confirm_new_password = request.form.get('confirm_new_password')
+    change_pass_form = ChangePassForm()
 
-        # Verifica se a senha atual está correta
+    print(f"metodo {flask.request.method}")
+
+    if flask.request.method == 'POST':
+        current_password = change_pass_form.current_password.data
+        new_password = change_pass_form.new_password.data
+        confirm_new_password = change_pass_form.confirm_new_password.data
+        print(confirm_new_password)
+
         if not check_password_hash(current_user.password, current_password):
             flash('Senha atual incorreta.', 'danger')
-            return render_template('alterar_senha.html', msg='Senha atual incorreta.')
+            return render_template('accounts/change_password.html', msg='Senha atual incorreta.', form=change_pass_form)
 
-        # Verifica se a nova senha e a confirmação são iguais
+        # Check if new passwords match
         if new_password != confirm_new_password:
             flash('As novas senhas não coincidem.', 'danger')
-            return render_template('alterar_senha.html', msg='As novas senhas não coincidem.')
+            return render_template('accounts/change_password.html', msg='As novas senhas não coincidem.',
+                                   form=change_pass_form)
 
-        # Atualiza a senha
-        update_password(current_user.id, password=new_password)
+        # Check password strength
+        if not is_strong_password(new_password):
+            flash(
+                'A nova senha deve ter pelo menos 8 caracteres, incluindo letras maiúsculas, minúsculas, números e símbolos.',
+                'danger')
+            return render_template('accounts/change_password.html',
+                                   msg='A nova senha não atende aos requisitos de segurança.', form=change_pass_form)
+
+        update_password(current_user.id, password=generate_password_hash(new_password))
 
         flash('Senha alterada com sucesso!', 'success')
-        return redirect(url_for('authentication_blueprint.login'))
+        return redirect(url_for('authentication_blueprint.logout'))
 
-    return render_template('change_password.html')
+    return render_template('accounts/change_password.html', form=change_pass_form)
 
 
 # Errors

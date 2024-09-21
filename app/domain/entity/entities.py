@@ -24,6 +24,7 @@ class User(Base, UserMixin):
     api_token_ts = Column('api_token_ts', Integer)
     created_at = Column('data_criacao', DateTime, server_default=func.now())
     active = Column('ativo', Boolean, default=True, nullable=False)
+    user_type = Column('user_type', String(), default=False, nullable=False)
 
     carts = relationship("Cart", back_populates="user")
 

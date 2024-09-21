@@ -6,6 +6,7 @@ from datetime import datetime, timezone
 
 import jwt
 from flask import current_app
+from flask_restx import Api
 from werkzeug.security import check_password_hash
 
 from gateways.databases.connection import session
@@ -43,3 +44,8 @@ def update_user_api_token(user):
     user.api_token_ts = int(time.time())
     session.commit()
     return token
+
+
+def get_api(blueprint):
+    api = Api(blueprint, version='1.0', title='Seller', description='Documentação API para MVP', doc="/docs")
+    return api

@@ -1,66 +1,38 @@
-from functools import wraps
+import os
+
 import jwt
-from flask import request, abort, current_app
-from domain.repository.user_repository import read_user_by_id
+import logging
+from functools import wraps
+from flask import request, abort, current_app, jsonify
+
+SECRET_KEY = os.environ.get('JWT_SECRET_KEY', 'fallback_secret_key')
+logger = logging.getLogger(__name__)
 
 
-def token_required(func):
-    @wraps(func)
+def create_error_response(message, error_type="Unauthorized", status_code=401):
+    return {
+        "message": message,
+        "data": None,
+        "error": error_type
+    }, status_code
+
+
+def token_required(f):
+    @wraps(f)
     def decorated(*args, **kwargs):
         token = None
-
-        if "Authorization" in request.headers:
-            try:
-                token = request.headers["Authorization"].split(" ")[1]
-            except IndexError:
-                return {
-                    "message": "Token format is invalid!",
-                    "data": None,
-                    "error": "Unauthorized"
-                }, 401
+        if 'Authorization' in request.headers:
+            token = request.headers['Authorization'].split(" ")[1]  # 'Bearer <token>'
 
         if not token:
-            return {
-                "message": "Authentication Token is missing!",
-                "data": None,
-                "error": "Unauthorized"
-            }, 401
+            return jsonify({'message': 'Token is missing!'}), 403
 
         try:
-            data = jwt.decode(token, current_app.config["SECRET_KEY"], algorithms=["HS256"])
-            current_user = read_user_by_id(data["user_id"])
-
-            if current_user is None:
-                return {
-                    "message": "Invalid Authentication token!",
-                    "data": None,
-                    "error": "Unauthorized"
-                }, 401
-
-            if not current_user["active"]:
-                abort(403)
-
-        except jwt.ExpiredSignatureError:
-            return {
-                "message": "Token has expired!",
-                "data": None,
-                "error": "Unauthorized"
-            }, 401
-
-        except jwt.InvalidTokenError:
-            return {
-                "message": "Invalid token!",
-                "data": None,
-                "error": "Unauthorized"
-            }, 401
-
+            data = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
+            current_user = data['sub']  # ou o campo que contém o ID do usuário
         except Exception as e:
-            return {
-                "message": "Something went wrong",
-                "data": None,
-                "error": str(e)
-            }, 500
+            return jsonify({'message': 'Invalid token!', 'error': str(e)}), 401
 
-        return func(current_user, *args, **kwargs)
+        return f(current_user, *args, **kwargs)
 
     return decorated

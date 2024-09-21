@@ -28,7 +28,8 @@ def read_all_products():
 
 
 def read_active_products():
-    return session.query(Product).filter(Product.active).all()
+    products = session.query(Product).filter(Product.active).all()
+    return products
 
 
 def read_products_by_id(product_id):

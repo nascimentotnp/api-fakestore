@@ -2,7 +2,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField
 from wtforms.fields.choices import SelectField
 from wtforms.fields.simple import TextAreaField, SubmitField
-from wtforms.validators import Email, DataRequired
+from wtforms.validators import Email, DataRequired, EqualTo
 
 
 class LoginForm(FlaskForm):
@@ -27,3 +27,9 @@ class CreateAccountForm(FlaskForm):
         ('Feminino', 'Feminino'),
         ('Não declarado', 'Não declarado')
     ], validators=[DataRequired()])
+
+
+class ChangePassForm(FlaskForm):
+    current_password = PasswordField('Senha Atual', validators=[DataRequired()])
+    new_password = PasswordField('Nova Senha', validators=[DataRequired()])
+    confirm_new_password = PasswordField('Confirmar Nova Senha', validators=[DataRequired()])
