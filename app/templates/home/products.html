@@ -1,12 +1,8 @@
 {% extends 'layouts/base.html' %}
 
-{% block title %} Product List {% endblock title %}
-
-<!-- Specific CSS goes HERE -->
-{% block stylesheets %}{% endblock stylesheets %}
+{% block title %} Lista de Produtos {% endblock title %}
 
 {% block content %}
-
     <div class="container-fluid py-4">
         <div class="row">
             <div class="col-12">
@@ -16,37 +12,28 @@
                     </div>
                     <div class="card-body px-0 pt-0 pb-2">
                         <div class="table-responsive p-0">
-                            <table class="table align-items-center justify-content-center mb-0">
+                            <table class="table align-items-center mb-0">
                                 <thead>
                                 <tr>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Product</th>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Price</th>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Category</th>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder text-center opacity-7 ps-2">Rating</th>
-                                    <th></th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder text-center opacity-7 ps-2">Imagem</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Produto</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Preço</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Categoria</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder text-center opacity-7 ps-2">Classificação</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder text-center opacity-7 ps-2">Avaliações</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder text-center opacity-7 ps-2">Ações</th>
                                 </tr>
                                 </thead>
                                 <tbody>
                                 {% if products %}
                                     {% for product in products %}
                                         <tr>
-                                            <td>
-                                                <div class="d-flex px-2">
-                                                    <div>
-                                                        <img src="{{ product.image }}" class="avatar avatar-sm rounded-circle me-2" alt="{{ product.title }}">
-                                                    </div>
-                                                    <div class="my-auto">
-                                                        <h6 class="mb-0 text-sm">{{ product.title }}</h6>
-                                                        <p class="text-xs text-secondary mb-0">{{ product.description }}</p>
-                                                    </div>
-                                                </div>
+                                            <td class="text-center">
+                                                <img src="{{ product.image }}" class="avatar avatar-sm rounded-circle" alt="{{ product.title }}">
                                             </td>
-                                            <td>
-                                                <p class="text-sm font-weight-bold mb-0">R${{ product.price }}</p>
-                                            </td>
-                                            <td>
-                                                <span class="text-xs font-weight-bold">{{ product.category }}</span>
-                                            </td>
+                                            <td>{{ product.title }}</td>
+                                            <td>R${{ product.price }}</td>
+                                            <td>{{ product.category }}</td>
                                             <td class="align-middle text-center">
                                                 <div class="d-flex align-items-center justify-content-center">
                                                     <span class="me-2 text-xs font-weight-bold">{{ product.rating_rate }} / 5</span>
@@ -57,20 +44,31 @@
                                                     </div>
                                                 </div>
                                             </td>
+                                            <td class="text-center">{{ product.rating_count }}</td>
                                             <td class="align-middle">
-                                                <button class="btn btn-link text-secondary mb-0">
-                                                    <i class="fa fa-ellipsis-v text-xs"></i>
-                                                </button>
+                                                <div class="dropdown">
+                                                    <button class="btn btn-link text-secondary mb-0 dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                                                        <i class="fa fa-ellipsis-v text-xs"></i>
+                                                    </button>
+                                                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                                        <li><a class="dropdown-item" href="/produtos/{{ product.id }}/editar">Editar</a></li>
+                                                        <li>
+                                                            <form action="/produtos/{{ product.id }}/excluir" method="POST" onsubmit="return confirm('Tem certeza que deseja excluir este produto?');">
+                                                                <button class="dropdown-item text-danger" type="submit">Excluir</button>
+                                                            </form>
+                                                        </li>
+                                                    </ul>
+                                                </div>
                                             </td>
+
                                         </tr>
                                     {% endfor %}
                                 {% else %}
                                     <tr>
-                                        <td colspan="5">Nenhum produto encontrado.</td>
+                                        <td colspan="7" class="text-center">Nenhum produto encontrado.</td>
                                     </tr>
                                 {% endif %}
                                 </tbody>
-
                             </table>
                         </div>
                     </div>
@@ -80,8 +78,4 @@
 
         {% include "includes/footer.html" %}
     </div>
-
 {% endblock content %}
-
-<!-- Specific JS goes HERE -->
-{% block javascripts %}{% endblock javascripts %}
