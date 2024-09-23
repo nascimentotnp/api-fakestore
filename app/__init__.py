@@ -1,3 +1,5 @@
+import os
+
 from flask import Flask, render_template
 from flask.cli import load_dotenv
 from config.log import setup_log
@@ -39,6 +41,7 @@ def create_app(config_class):
     app = Flask(__name__)
 
     app.config.from_object(config_class)
+    app.config['UPLOAD_FOLDER'] = os.getenv('UPLOAD_FOLDER', os.path.join(app.root_path, 'uploads'))
 
     login_manager.init_app(app)
     configure_database(app)

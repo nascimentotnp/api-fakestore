@@ -6,11 +6,10 @@ from gateways.databases.connection import session
 
 def create_products(product_id, title, price, description, category, image, rating_rate, rating_count):
     if read_products_by_id(product_id):
-        logging.info(f'Produto {product_id} já existe no banco.')
-        return False  # Retorna False se o produto já existir
+        logging.info(f'Produto {title} já existe no banco.')
+        return False
 
     new_product = Product(
-        id=product_id,  # Adicione o ID aqui, se necessário
         title=title,
         price=price,
         description=description,
@@ -18,11 +17,11 @@ def create_products(product_id, title, price, description, category, image, rati
         image=image,
         rating_rate=rating_rate,
         rating_count=rating_count,
-        active=True  # Assumindo que você quer que o novo produto seja ativo
+        active=True
     )
     session.add(new_product)
     session.commit()
-    return True  # Retorna True se o produto foi criado
+    return True
 
 
 def read_all_products():
@@ -41,13 +40,24 @@ def update_products(product_id, **kwargs):
     product = session.query(Product).get(product_id)
     if not product:
         logging.warning(f'Produto {product_id} não encontrado para atualização.')
-        return False  # Retorna False se o produto não for encontrado
+        return False
 
     for key, value in kwargs.items():
         setattr(product, key, value)
 
     session.commit()
-    return True  # Retorna True se a atualização for bem-sucedida
+    return True
+
+
+def update_product_price(product_id, price):
+    product = session.query(Product).get(product_id)
+    if not product:
+        logging.warning(f'Produto {product_id} não encontrado para atualização.')
+        return False
+
+    product.price = float(price)
+    session.commit()
+    return True
 
 
 def delete_products(product_id):
@@ -76,7 +86,6 @@ def persist_products(products):
                 product.rating_count = product_data['rating']['count']
             else:
                 new_product = Product(
-                    id=product_data['id'],
                     title=product_data['title'],
                     price=product_data['price'],
                     description=product_data['description'],
@@ -84,10 +93,9 @@ def persist_products(products):
                     image=product_data['image'],
                     rating_rate=product_data['rating']['rate'],
                     rating_count=product_data['rating']['count'],
-                    active=True  # Assumindo que novos produtos são ativos
+                    active=True
                 )
                 session.add(new_product)
-
         session.commit()
         logging.info("Produtos persistidos com sucesso.")
     except SQLAlchemyError as e:
@@ -95,14 +103,19 @@ def persist_products(products):
         logging.error(f"Ocorreu um erro ao persistir os produtos: {e}")
         return False
     finally:
-        session.remove()  # Use session.remove() para limpar a sessão
+        session.close()
 
 
 def initialize_products_if_empty(products):
     existing_product = session.query(Product).first()
+    logging.info("Verificando se existem produtos no banco de dados.")
 
     if existing_product is None:
         logging.info("Nenhum produto encontrado no banco de dados. Persistindo os produtos da API.")
+        if not products:
+            logging.warning("Nenhum produto retornado da API para persistir.")
+            return
         persist_products(products)
     else:
         logging.info("Produtos já existem no banco de dados. Nenhuma ação necessária.")
+

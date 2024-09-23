@@ -103,14 +103,22 @@
                                             {{ form.phone(placeholder="Telefone", class="form-control") }}
                                         </div>
 
-                                        <label>Gênero</label>
-                                        <div class="mb-3">
-                                            <select name="gender" class="form-control">
-                                                <option value="Masculino">Masculino</option>
-                                                <option value="Feminino">Feminino</option>
-                                                <option value="Não declarado">Não declarado</option>
-                                            </select>
+                                        <label>Gênero</label><br/>
+                                        <div class="form-check">
+                                            <label class="form-radio-label">
+                                                <input class="form-radio-input" type="radio" name="gender" value="Masculino" {% if form.gender.data == 'Masculino' %} checked {% endif %}>
+                                                <span class="form-radio-sign">Masculino</span>
+                                            </label>
+                                            <label class="form-radio-label ml-3">
+                                                <input class="form-radio-input" type="radio" name="gender" value="Feminino" {% if form.gender.data == 'Feminino' %} checked {% endif %}>
+                                                <span class="form-radio-sign">Feminino</span>
+                                            </label>
+                                            <label class="form-radio-label ml-3">
+                                                <input class="form-radio-input" type="radio" name="gender" value="Não declarado" {% if form.gender.data == 'Não declarado' %} checked {% endif %}>
+                                                <span class="form-radio-sign">Não declarado</span>
+                                            </label>
                                         </div>
+
 
                                         <div class="text-center">
                                             <button type="submit" name="register" class="btn bg-gradient-dark w-100 my-4 mb-2">Cadastrar</button>

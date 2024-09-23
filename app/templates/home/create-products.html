@@ -1,0 +1,153 @@
+{% extends 'layouts/base-fullscreen.html' %}
+
+{% block title %} Entrar {% endblock title %}
+
+<!-- Specific CSS goes HERE -->
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+
+    <div class="container position-sticky z-index-sticky top-0">
+        <div class="row">
+            <div class="col-12">
+
+                {% include "includes/navigation-fullscreen.html" %}
+
+            </div>
+        </div>
+    </div>
+
+    <main class="main-content  mt-0">
+        <section>
+            <div class="page-header min-vh-75">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-xl-4 col-lg-5 col-md-6 d-flex flex-column mx-auto">
+                            <div class="card card-plain mt-8">
+                                <div class="card-header pb-0 text-left bg-transparent">
+                                    <h3 class="font-weight-bolder text-info text-gradient">
+                                        Crie um produto
+                                    </h3>
+                                    <p class="mb-0">
+                                        {% if msg %}
+                                            <span class="text-danger">{{ msg | safe }}</span>
+                                        {% else %}
+                                            Adicione todos os campos
+                                        {% endif %}
+                                    </p>
+                                </div>
+                                <div class="card-body">
+
+                                    <form action="/produtos/criar" method="POST" enctype="multipart/form-data">
+                                        <div class="form-group">
+                                            <label for="title">Título do Produto</label>
+                                            <input type="text" class="form-control" id="title" name="title" required>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="price">Preço</label>
+                                            <input type="number" class="form-control" id="price" name="price" step="0.01" required>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="description">Descrição</label>
+                                            <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="category">Categoria</label>
+                                            <input type="text" class="form-control" id="category" name="category" required>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="exampleFormControlFile1">Imagem</label>
+                                            <input type="file" class="form-control-file" id="exampleFormControlFile1">
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="rating_rate">Classificação</label>
+                                            <input type="number" class="form-control" id="rating_rate" name="rating_rate" step="0.1" min="0" max="5" required>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="rating_count">Número de Avaliações</label>
+                                            <input type="number" class="form-control" id="rating_count" name="rating_count" required>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="active">Ativo</label>
+                                            <select class="form-control" id="active" name="active" required>
+                                                <option value="true">Sim</option>
+                                                <option value="false">Não</option>
+                                            </select>
+                                        </div>
+
+                                        <button type="submit" class="btn btn-primary">Criar Produto</button>
+                                    </form>
+
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="oblique position-absolute top-0 h-100 d-md-block d-none me-n8">
+                                <div class="oblique-image bg-cover position-absolute fixed-top ms-auto h-100 z-index-0 ms-n6" style="background-image:url('{{ config.ASSETS_ROOT }}/img/curved-images/curved11.jpg')"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    {% include "includes/footer-fullscreen.html" %}
+
+{% endblock content %}
+
+<!-- Specific JS goes HERE -->
+{% block javascripts %}
+
+    <script>
+
+        // Save aKey in localStorage
+        const asyncLocalStorage = {
+            setItem: function (key, value) {
+                return Promise.resolve().then(function () {
+                    localStorage.setItem(key, value);
+                });
+            }
+        }
+
+      // Login hook
+      document.getElementsByTagName('form')[0].onsubmit = (e) => {
+
+        e.preventDefault();
+
+        const formData = new FormData(e.target)
+        const username = formData.get('username');
+        const password = formData.get('password');
+
+        fetch('/login/jwt/',{
+            method: 'POST',
+            body: JSON.stringify({
+                username: username,
+                password: password
+            }),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+            .then((response) => response.json())
+            .then((res) => {
+
+              //console.log('Token: ' + res.data);
+
+              // store token in localStorage
+              asyncLocalStorage.setItem('token',res.data).then(result => {e.target.submit()})
+
+            })
+            .catch((err) => {console.log(err)})
+      }
+
+    </script>
+
+{% endblock javascripts %}

@@ -24,7 +24,7 @@ class User(Base, UserMixin):
     api_token_ts = Column('api_token_ts', Integer)
     created_at = Column('data_criacao', DateTime, server_default=func.now())
     active = Column('ativo', Boolean, default=True, nullable=False)
-    user_type = Column('user_type', String(), default=False, nullable=False)
+    user_type = Column('user_type', String(8), default=False, nullable=False)
 
     carts = relationship("Cart", back_populates="user")
 
@@ -43,7 +43,7 @@ class User(Base, UserMixin):
 class Product(Base):
     __tablename__ = 'products'
 
-    id = Column(Integer, primary_key=True, autoincrement=False)
+    id = Column(Integer, primary_key=True, autoincrement=True, nullable=False)
     title = Column('titulo', String(500), nullable=False)
     price = Column('preco', Float, nullable=False)
     description = Column('descricao', String(1000), nullable=False)
@@ -54,8 +54,7 @@ class Product(Base):
     active = Column('ativo', Boolean, default=True, nullable=False)
     created_at = Column('data_criacao', DateTime, server_default=func.now())
 
-    def __init__(self, product_id, title, price, description, category, image, rating_rate, rating_count, active=True):
-        self.id = product_id
+    def __init__(self,  title, price, description, category, image, rating_rate, rating_count, active=True):
         self.title = title
         self.price = price
         self.description = description

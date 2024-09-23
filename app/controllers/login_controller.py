@@ -16,7 +16,6 @@ from gateways.databases.connection import session
 
 authentication_blueprint = Blueprint('authentication_blueprint', __name__, url_prefix='/')
 
-
 api = get_api(authentication_blueprint)
 login_model = api.model('Login', {
     'username': fields.String(required=True, description='Nome de usuário'),
@@ -151,6 +150,11 @@ def register():
                 'danger')
             return render_template('accounts/register.html',
                                    msg='A nova senha não atende aos requisitos de segurança.', form=create_account_form)
+        if not gender:
+            return render_template('accounts/register.html',
+                                   msg='Por favor, selecione um gênero.',
+                                   success=False,
+                                   form=create_account_form)
 
         session.add(user)
         session.commit()
@@ -162,7 +166,7 @@ def register():
         logout_user()
 
         return render_template('accounts/register.html',
-                               msg='User created successfully.',
+                               msg=f'Usuário {request.form.get('username')} criado com sucesso.',
                                success=True,
                                form=create_account_form)
     else:
