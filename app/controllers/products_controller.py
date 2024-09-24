@@ -2,17 +2,23 @@ import logging
 import os
 from datetime import datetime
 
-from flask import Blueprint, request, jsonify, render_template, redirect, url_for, flash
+from flask import Blueprint, request, jsonify, render_template, redirect, url_for, flash, current_app
 from werkzeug.utils import secure_filename
 
 from app import login_manager
 from authentication.auth_middleware import token_required
+from authentication.forms import CreateProductForm
+from domain.entity.entities import Product
 from domain.repository.product_repository import (
     read_products_by_id, update_products, create_products,
     read_active_products, delete_products, update_product_price
 )
+from gateways.databases.connection import session
 
 product_blueprint = Blueprint('product_blueprint', __name__, url_prefix='/produtos')
+
+# No seu arquivo de configuração
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
 products_model = {
     'id': {'type': 'integer', 'readonly': True, 'description': 'ID do produto'},
@@ -101,48 +107,50 @@ def display_products():
 
 
 def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in os.getenv('ALLOWED_EXTENSIONS')
+    allowed_extensions = current_app.config['ALLOWED_EXTENSIONS']
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in allowed_extensions
 
 
-@product_blueprint.route('/criar', methods=['GET', 'POST'])
+@product_blueprint.route('/criar', methods=['POST'])
 def create_product():
     if request.method == 'POST':
-        # Pega os dados do formulário
-        title = request.form['title']
-        price = request.form['price']
-        description = request.form['description']
-        category = request.form['category']
-        rating_rate = request.form['rating_rate']
-        rating_count = request.form['rating_count']
-        active = request.form['active'] == 'true'  # Converte para booleano
+        title = request.form.get('title')
+        price = request.form.get('price')
+        description = request.form.get('description')
+        category = request.form.get('category')
+        rating_rate = float(request.form.get('rating_rate'))
+        rating_count = int(request.form.get('rating_count'))
 
-        file = request.files['image']
+        file = request.files.get('image')
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
-            # file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 
-            # Monta o objeto do produto
-            product_data = {
-                'title': title,
-                'price': price,
-                'description': description,
-                'category': category,
-                'image': filename,
-                'rating_rate': rating_rate,
-                'rating_count': rating_count,
-                'active': active,
-                'created_at': datetime.now().strftime('%Y-%m-%d')
-            }
+            upload_folder = current_app.config['UPLOAD_FOLDER']
+            os.makedirs(upload_folder, exist_ok=True)
 
-            # Chama a função que cria o produto no repositório
+            file.save(os.path.join(upload_folder, filename))
+
+            product = Product(
+                title=title,
+                price=price,
+                description=description,
+                category=category,
+                image=filename,
+                rating_rate=rating_rate,
+                rating_count=rating_count
+            )
             try:
-                create_products(**product_data)
-                flash('Produto criado com sucesso!', 'success')
-                return redirect(url_for('product_blueprint.display_products'))
+                session.add(product)
+                session.commit()
+                return jsonify({'success': True})
             except Exception as e:
-                flash(f'Ocorreu um erro: {str(e)}', 'danger')
+                session.rollback()
+                return jsonify({'success': False, 'message': str(e)}), 500
+        else:
+            return jsonify({'success': False, 'message': 'Arquivo inválido.'}), 400
 
-    return render_template('home/create_product.html')
+    return jsonify({'success': True, 'message': 'ok'}), 201
+
 
 
 @login_manager.unauthorized_handler

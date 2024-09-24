@@ -4,21 +4,24 @@
 
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <link rel="apple-touch-icon" sizes="76x76" href="{{ config.ASSETS_ROOT }}/img/apple-icon.png">
-    <link rel="icon" type="image/png" href="{{ config.ASSETS_ROOT }}/img/HomeLogo.png">
-
     <title>
         Sale - {% block title %}{% endblock %}
     </title>
+    <meta content='width=device-width, initial-scale=1.0, shrink-to-fit=no' name='viewport' />
+    <link rel="icon" type="image/png" href="{{ config.ASSETS_ROOT }}/img/HomeLogo.png">
+
+
 
     <!--     Fonts and icons     -->
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
+
     <!-- Nucleo Icons -->
     <link href="{{ config.ASSETS_ROOT }}/css/nucleo-icons.css" rel="stylesheet" />
     <link href="{{ config.ASSETS_ROOT }}/css/nucleo-svg.css" rel="stylesheet" />
 
-
+    <link rel="stylesheet" href="/static/assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/assets/css/atlantis.min.css">
+    <!-- CSS Just for demo purpose, don't include it in your project -->
     <!-- Font Awesome Icons -->
     <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
     <!-- CSS Files -->
@@ -27,34 +30,28 @@
     <link id="pagestyle_dark" href="{{ config.ASSETS_ROOT }}/css/dark-theme-core.css" rel="stylesheet" />
 
 
-    <!-- jQuery -->
-    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-
-    <!-- Bootstrap JS -->
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
-
     <!-- Specific CSS goes HERE -->
     {% block stylesheets %}{% endblock stylesheets %}
 
 </head>
 <body class="g-sidenav-show  bg-gray-100">
-<div class="wrapper">
-    {% include "includes/sidebar.html" %}
 
-    <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
+{% include "includes/sidebar.html" %}
 
-        {% include "includes/navigation.html" %}
+<main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
 
-        {% block content %}{% endblock content %}
+    {% include "includes/navigation.html" %}
 
-    </main>
+    {% block content %}{% endblock content %}
 
-    <!-- APP Configurator -->
-    {% include "includes/fixed-plugin.html" %}
+</main>
 
-    <!-- Core JS Files -->
-    {% include "includes/scripts.html" %}
-</div>
+<!-- APP Configurator -->
+{% include "includes/fixed-plugin.html" %}
+
+<!-- Core JS Files -->
+{% include "includes/scripts.html" %}
+
 <!-- Specific JS goes HERE -->
 {% block javascripts %}
 

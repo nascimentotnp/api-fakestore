@@ -9,64 +9,157 @@
                 <div class="card mb-4">
                     <div class="card-header pb-0 d-flex justify-content-between align-items-center">
                         <h6>Lista de Produtos</h6>
-                        <button class="btn btn-success" type="button" onclick="window.location.href='/produtos/novo'">
-                            <i class="fa fa-plus" aria-hidden="true"></i> Adicionar Produto
+                        <button class="btn btn-round ml-auto" style="color: #007bff;" data-toggle="modal" data-target="#addRowModal">
+                            <i class="fa fa-plus"></i>
+                            Adicionar
                         </button>
                     </div>
+                    </div>
                     <div class="card-body px-0 pt-0 pb-2">
-                        <div class="table-responsive p-0">
-                            <table class="table align-items-center mb-0">
-                                <thead>
-                                <tr>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder text-center opacity-7">Imagem</th>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Produto</th>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Preço</th>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Categoria</th>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder text-center opacity-7">Classificação</th>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder text-center opacity-7">Avaliações</th>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder text-center opacity-7">Ações</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                {% if products %}
-                                    {% for product in products %}
-                                        <tr>
-                                            <td class="text-center">
-                                                <img src="{{ product.image }}" class="avatar avatar-sm rounded-circle" alt="{{ product.title }}">
-                                            </td>
-                                            <td>
-                                                <span class="product-title" title="{{ product.title }}">{{ product.title }}</span>
-                                            </td>
-                                            <td>R${{ product.price }}</td>
-                                            <td>{{ product.category }}</td>
-                                            <td class="align-middle text-center">
-                                                <div class="d-flex align-items-center justify-content-center">
-                                                    <span class="me-2 text-xs font-weight-bold">{{ product.rating_rate }} / 5</span>
-                                                    <div class="progress w-75">
-                                                        <div class="progress-bar bg-gradient-info" role="progressbar" style="width: {{ product.rating_rate * 20 }}%;"></div>
+                        <div class="modal fade" id="addRowModal" tabindex="-1" role="dialog" aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header no-bd">
+                                        <h5 class="modal-title">
+												<span class="fw-mediumbold">
+												Inserir </span>
+                                            <span class="fw-light">
+													Produto
+												</span>
+                                        </h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p class="small">Adicione os dados de cadastro do produto</p>
+                                        <form id="addProductForm" method="POST" action="/produtos/criar" enctype="multipart/form-data">
+                                            <div class="row">
+                                                <div class="col-sm-12">
+                                                    <div class="form-group form-floating-label">
+                                                        <label>Nome</label>
+                                                        <input id="addProductName" name="title" type="text" class="form-control" placeholder="Nome Produto" required>
+                                                    </div>
+
+                                                </div>
+                                                <div class="col-md-6 pr-0">
+                                                    <div class="form-group form-group-default">
+                                                        <label>Preço</label>
+                                                        <input id="addProductPrice" name="price" type="number" class="form-control" placeholder="Product price" required>
                                                     </div>
                                                 </div>
-                                            </td>
-                                            <td class="text-center">{{ product.rating_count }}</td>
-                                            <td class="align-middle text-center">
-                                                <a class="btn-sm" title="Editar Produto" onclick="editProductPrice('{{ product.id }}', '{{ product.price }}')">
-                                                    <i class="fas fa-edit fa-sm" style="color: #007bff;"></i>
-                                                </a>
-                                                <a class="btn-sm" title="Excluir Produto"
-                                                        onclick="showSweetAlert('Desativar Produto?', 'Você tem certeza que quer desativar este produto?', 'Sim, Desativar', 'Manter ativo', '/produtos/{{ product.id }}/excluir')">
-                                                    <i class="fa fa-trash fa-sm" style="color: red;"></i>
-                                                </a>
-                                            </td>
+                                                <div class="col-md-6">
+                                                    <div class="form-group form-group-default">
+                                                        <label>Categoria</label>
+                                                        <select id="addProductCategory" name="category" class="form-control" required>
+                                                            <option value="women's clothing">Women's Clothing</option>
+                                                            <option value="men's clothing">Men's Clothing</option>
+                                                            <option value="electronics">Electronics</option>
+                                                            <option value="jewelry">Jewelry</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6 pr-0">
+                                                    <div class="form-group form-group-default">
+                                                        <label>Classificação</label>
+                                                        <input id="addProductRatingRate" name="rating_rate" type="number" class="form-control" placeholder="Classificação" required>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6 pr-0">
+                                                    <div class="form-group form-group-default">
+                                                        <label>Avaliações</label>
+                                                        <input id="addProductRatingCount" name="rating_count" type="number" class="form-control" placeholder="Avaliação" required>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <div class="form-group form-group-default">
+                                                        <label>Descrição</label>
+                                                        <textarea id="addProductDescription" name="description" class="form-control" placeholder="Descrição do produto" required></textarea>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <div class="form-group form-group-default">
+                                                        <label>Image URL</label>
+                                                        <input id="addProductImage" name="image" type="file" class="form-control" required>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </form>
 
-                                        </tr>
-                                    {% endfor %}
-                                {% else %}
+                                    </div>
+                                    <div class="modal-footer no-bd">
+                                        <button type="button" id="addRowButton" class="btn btn-round ml-auto" style="color: #05e518;">Criar</button>
+                                        <button type="button" class="btn btn-round ml-auto" style="color: #ff0000;" data-dismiss="modal">Fechar</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table id="basic-datatables" class="display table table-striped table-hover" >
+                                    <thead>
                                     <tr>
-                                        <td colspan="7" class="text-center">Nenhum produto encontrado.</td>
+                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder text-center opacity-7">Imagem</th>
+                                        <th class="sorting_asc" tabindex="0" aria-controls="basic-datatables" rowspan="1" colspan="1" aria-label="Age: activate to sort column descending" style="width: 32.4844px;" aria-sort="ascending">Produto</th>
+                                        <th class="sorting_asc" tabindex="0" aria-controls="basic-datatables" rowspan="1" colspan="1" aria-label="Age: activate to sort column descending" style="width: 32.4844px;" aria-sort="ascending">Preço</th>
+                                        <th class="sorting_asc" tabindex="0" aria-controls="basic-datatables" rowspan="1" colspan="1" aria-label="Age: activate to sort column descending" style="width: 32.4844px;" aria-sort="ascending">Categoria</th>
+                                        <th class="sorting_asc" tabindex="0" aria-controls="basic-datatables" rowspan="1" colspan="1" aria-label="Age: activate to sort column descending" style="width: 32.4844px;" aria-sort="ascending">Classificação</th>
+                                        <th class="sorting_asc" tabindex="0" aria-controls="basic-datatables" rowspan="1" colspan="1" aria-label="Age: activate to sort column descending" style="width: 32.4844px;" aria-sort="ascending">Avaliações</th>
+                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder text-center opacity-7">Ações</th>
                                     </tr>
-                                {% endif %}
-                                </tbody>
-                            </table>
+                                    </thead>
+                                    <tbody>
+                                    {% if products %}
+                                        {% for product in products %}
+                                            <tr>
+                                                <td class="text-center">
+                                                    <img src="{{ product.image }}" class="avatar avatar-sm rounded-circle" alt="{{ product.title }}">
+                                                </td>
+                                                <td>
+                                                    <span class="product-title" title="{{ product.title }}">{{ product.title }}</span>
+                                                </td>
+                                                <td>R${{ product.price }}</td>
+                                                <td>{{ product.category }}</td>
+                                                <td class="align-middle text-center">
+                                                    <div class="d-flex align-items-center justify-content-center">
+                                                        <span class="me-2 text-xs font-weight-bold">{{ product.rating_rate }} / 5</span>
+                                                        <div class="progress w-75">
+                                                            <div class="progress-bar bg-gradient-info" role="progressbar" style="width: {{ product.rating_rate * 20 }}%;"></div>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td class="text-center">{{ product.rating_count }}</td>
+                                                <td class="align-middle text-center">
+                                                    <a class="btn-sm" title="Alterar preço" onclick="editProductPrice('{{ product.id }}', '{{ product.price }}')">
+                                                        <i class="fas fa-edit fa-sm" style="color: #007bff;"></i>
+                                                    </a>
+
+                                                        <label class="form-check-label">
+                                                            <input class="form-check-input" type="checkbox" name="productDeactivate" value="{{ product.id }}"
+                                                                   onclick="showSweetAlert('Desativar Produto?', 'Você tem certeza que quer desativar este produto?', 'Sim, Desativar', 'Manter ativo', '/produtos/{{ product.id }}/excluir')">
+                                                            <span class="form-check-sign" title="Excluir Produto"></span>
+                                                        </label>
+                                                </td>
+
+                                            </tr>
+                                        {% endfor %}
+                                    {% else %}
+                                        <tr>
+                                            <td colspan="7" class="text-center">Nenhum produto encontrado.</td>
+                                        </tr>
+                                    {% endif %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-12 col-md-5">
+                                <div class="dataTables_info" id="basic-datatables_info" role="status" aria-live="polite">
+
+                                </div>
+                        </div>
+
                         </div>
                     </div>
                 </div>
@@ -80,114 +173,178 @@
     <style>
         .product-title {
             display: inline-block;
-            max-width: 150px; /* Ajuste o valor conforme necessário */
+            max-width: 150px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
     </style>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script>
-        function showSweetAlert(title, text, confirmText, cancelText, formActionUrl) {
-            Swal.fire({
-                title: title,
-                text: text,
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonText: confirmText,
-                cancelButtonText: cancelText,
-                buttonsStyling: false,
-                customClass: {
-                    confirmButton: 'btn btn-success',
-                    cancelButton: 'btn btn-danger'
-                }
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    Swal.fire({
-                        title: 'Desativando...',
-                        icon: 'info',
-                        allowOutsideClick: false,
-                        allowEscapeKey: false,
-                        didOpen: () => {
-                            Swal.showLoading();
-                            var form = document.createElement('form');
-                            form.method = 'POST';
-                            form.action = formActionUrl;
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <link rel="stylesheet" href="https://cdn.datatables.net/1.10.24/css/jquery.dataTables.min.css">
+        <script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
 
-                            document.body.appendChild(form);
-                            form.submit();
-                        }
-                    });
-                } else {
-                    Swal.fire({
-                        title: 'Ação cancelada!',
-                        icon: 'info',
-                        confirmButtonText: 'OK',
-                        customClass: {
-                            confirmButton: 'btn btn-success'
-                        }
-                    });
-                }
-            });
-        }
-    function editProductPrice(productId, currentPrice) {
-        Swal.fire({
-            title: 'Alterar Preço',
-            html: '<br><input class="form-control" placeholder="Novo Preço" id="price-input" value="' + currentPrice + '">',
-            buttonsStyling: false,
-            confirmButtonText: 'Salvar',
-            cancelButtonText: 'Cancelar',
-            showCancelButton: true,
-            customClass: {
-                confirmButton: 'btn btn-success',
-                cancelButton: 'btn btn-danger'
-            },
-            preConfirm: () => {
-                const newPrice = document.getElementById('price-input').value;
-                if (!newPrice || isNaN(newPrice) || newPrice <= 0) {
-                    Swal.showValidationMessage('Por favor, insira um preço válido.');
-                    return false;
-                }
-                return newPrice;
+        <script>
+            function showSweetAlert(title, text, confirmText, cancelText, formActionUrl) {
+                Swal.fire({
+                    title: title,
+                    text: text,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: confirmText,
+                    cancelButtonText: cancelText,
+                    buttonsStyling: false,
+                    customClass: {
+                        confirmButton: 'btn btn-round ml-auto btn-success',
+                        cancelButton: 'btn btn-round ml-auto btn-danger'
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        Swal.fire({
+                            title: 'Desativando...',
+                            icon: 'info',
+                            allowOutsideClick: false,
+                            allowEscapeKey: false,
+                            didOpen: () => {
+                                Swal.showLoading();
+                                var form = document.createElement('form');
+                                form.method = 'POST';
+                                form.action = formActionUrl;
+
+                                document.body.appendChild(form);
+                                form.submit();
+                            }
+                        });
+                    } else {
+                        Swal.fire({
+                            title: 'Ação cancelada!',
+                            icon: 'info',
+                            confirmButtonText: 'OK',
+                            customClass: {
+                                confirmButton: 'btn btn-round ml-auto btn-success'
+                            }
+                        });
+                    }
+                });
             }
-        }).then((result) => {
-            if (result.isConfirmed) {
-                const newPrice = result.value;
-
-                fetch(`/produtos/${productId}/alterar-preco`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
+            function editProductPrice(productId, currentPrice) {
+                Swal.fire({
+                    title: 'Alterar Preço',
+                    html: '<br><input class="form-control" placeholder="Novo Preço" id="price-input" value="' + currentPrice + '">',
+                    buttonsStyling: false,
+                    confirmButtonText: 'Salvar',
+                    cancelButtonText: 'Cancelar',
+                    showCancelButton: true,
+                    customClass: {
+                        confirmButton: 'btn btn-round ml-auto btn-success',
+                        cancelButton: 'btn btn-round ml-auto btn-danger'
                     },
-                    body: JSON.stringify({ price: newPrice })
-                })
+                    preConfirm: () => {
+                        const newPrice = document.getElementById('price-input').value;
+                        if (!newPrice || isNaN(newPrice) || newPrice <= 0) {
+                            Swal.showValidationMessage('Por favor, insira um preço válido.');
+                            return false;
+                        }
+                        return newPrice;
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        const newPrice = result.value;
+
+                        fetch(`/produtos/${productId}/alterar-preco`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({ price: newPrice })
+                        })
+                            .then(response => response.json())
+                            .then(data => {
+                                Swal.fire({
+                                    title: 'Preço atualizado!',
+                                    text: 'O preço foi atualizado para R$' + newPrice,
+                                    icon: 'success',
+                                    confirmButtonText: 'OK',
+                                    customClass: {
+                                        confirmButton: 'btn btn-round ml-auto btn-success'
+                                    }
+                                }).then(() => {
+                                    window.location.reload();
+                                });
+                            })
+                            .catch(error => {
+                                Swal.fire({
+                                    title: 'Erro!',
+                                    text: 'Ocorreu um erro ao atualizar o preço.',
+                                    icon: 'error',
+                                    confirmButtonText: 'OK',
+                                    customClass: {
+                                        confirmButton: 'btn btn-round ml-auto btn-danger'
+                                    }
+                                });
+                            });
+                    }
+                });
+            }
+        </script>
+    <script src="/static/assets/js/setting.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#basic-datatables').DataTable({
+                "order": [[6, 'asc']],
+                "columnDefs": [
+                    { "orderable": true, "targets": [6] }
+                ]
+            });
+
+            $('#addRowButton').click(function() {
+                $('#basic-datatables').dataTable().fnAddData([
+                    $("#addProductName").val(),
+                    $("#addProductPrice").val(),
+                    $("#addProductCategory").val(),
+                    '<img src="' + $("#addProductImage").val() + '" class="avatar avatar-sm rounded-circle">',
+                    action
+                ]);
+                $('#addRowModal').modal('hide');
+            });
+        });
+
+        document.getElementById('addRowButton').addEventListener('click', function() {
+            var form = document.getElementById('addProductForm');
+            var formData = new FormData(form);
+
+            fetch('/produtos/criar', {
+                method: 'POST',
+                body: formData
+            })
                 .then(response => response.json())
                 .then(data => {
-                    Swal.fire({
-                        title: 'Preço atualizado!',
-                        text: 'O preço foi atualizado para R$' + newPrice,
-                        icon: 'success',
-                        confirmButtonText: 'OK',
-                        customClass: {
-                            confirmButton: 'btn btn-success'
-                        }
-                    }).then(() => {
-                        window.location.reload();
-                    });
+                    if (data.success) {
+                        Swal.fire({
+                            title: 'Produto criado!',
+                            icon: 'success',
+                            confirmButtonText: 'OK',
+                        }).then(() => {
+                            window.location.reload(); // Atualiza a lista de produtos
+                        });
+                    } else {
+                        Swal.fire({
+                            title: 'Erro!',
+                            text: data.message,
+                            icon: 'error',
+                            confirmButtonText: 'OK',
+                        });
+                    }
                 })
                 .catch(error => {
                     Swal.fire({
                         title: 'Erro!',
-                        text: 'Ocorreu um erro ao atualizar o preço.',
+                        text: 'Ocorreu um erro ao adicionar o produto.',
                         icon: 'error',
                         confirmButtonText: 'OK',
-                        customClass: {
-                            confirmButton: 'btn btn-danger'
-                        }
                     });
                 });
-            }
         });
-    }
+
     </script>
+
 {% endblock javascripts %}

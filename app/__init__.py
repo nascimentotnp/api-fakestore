@@ -43,6 +43,8 @@ def create_app(config_class):
     app.config.from_object(config_class)
     app.config['UPLOAD_FOLDER'] = os.getenv('UPLOAD_FOLDER', os.path.join(app.root_path, 'uploads'))
 
+    app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'gif'}
+
     login_manager.init_app(app)
     configure_database(app)
 
