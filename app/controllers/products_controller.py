@@ -5,7 +5,6 @@ from datetime import datetime
 from flask import Blueprint, request, jsonify, render_template, redirect, url_for, flash, current_app
 from werkzeug.utils import secure_filename
 
-from app import login_manager
 from authentication.auth_middleware import token_required
 from authentication.forms import CreateProductForm
 from domain.entity.entities import Product
@@ -17,8 +16,6 @@ from gateways.databases.connection import session
 
 product_blueprint = Blueprint('product_blueprint', __name__, url_prefix='/produtos')
 
-# No seu arquivo de configuração
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
 products_model = {
     'id': {'type': 'integer', 'readonly': True, 'description': 'ID do produto'},
@@ -153,6 +150,4 @@ def create_product():
 
 
 
-@login_manager.unauthorized_handler
-def unauthorized_handler():
-    return render_template('home/page-403.html'), 403
+

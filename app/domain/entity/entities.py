@@ -1,10 +1,8 @@
-from flask_dance.consumer.storage.sqla import OAuthConsumerMixin
 from flask_login import UserMixin
 from sqlalchemy import Column, Integer, String, Float, Boolean, ForeignKey, DateTime, JSON, func
 from sqlalchemy.orm import relationship
 from werkzeug.security import generate_password_hash
 
-from authentication.jwt_auth import hash_password
 from gateways.databases.gateway_database import Base
 
 

@@ -1,25 +1,19 @@
-FROM python:3.10
+FROM python:3.10-slim
+
+WORKDIR /app
 
 # set environment variables
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
-ENV FLASK_APP main.py
-ENV DEBUG True
-
+ENV PYTHONPATH=/app/app:$PYTHONPATH
 COPY requirements.txt .
 
 # install python dependencies
 RUN pip install --upgrade pip
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY env.sample .env
-
 COPY . .
-
-RUN flask db init
-RUN flask db migrate
-RUN flask db upgrade
-RUN flask gen_api
+EXPOSE 8000
 
 # gunicorn
-CMD ["gunicorn", "--config", "gunicorn-cfg.py", "run:app"]
+CMD ["gunicorn", "--config", "gunicorn-cfg.py", "-b", "0.0.0.0:5000", "app.run:app"]
